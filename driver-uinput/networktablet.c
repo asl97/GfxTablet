@@ -101,6 +101,7 @@ void quit(int signal) {
 int main(void)
 {
 	int device;
+	int touch = 0;
 	struct event_packet ev_pkt;
 
 	if ((device = open("/dev/uinput", O_WRONLY | O_NONBLOCK)) < 0)
@@ -131,8 +132,9 @@ int main(void)
 
 		ev_pkt.x = ntohs(ev_pkt.x);
 		ev_pkt.y = ntohs(ev_pkt.y);
+		ev_pkt.ptr = ntohs(ev_pkt.ptr);
 		ev_pkt.pressure = ntohs(ev_pkt.pressure);
-		printf("x: %hi, y: %hi, pressure: %hi\n", ev_pkt.x, ev_pkt.y, ev_pkt.pressure);
+		printf("x: %hi, y: %hi, pressure: %hi, ptr: %d\n", ev_pkt.x, ev_pkt.y, ev_pkt.pressure, ev_pkt.ptr);
 
 		send_event(device, EV_ABS, ABS_X, ev_pkt.x);
 		send_event(device, EV_ABS, ABS_Y, ev_pkt.y);
@@ -141,10 +143,16 @@ int main(void)
 		switch (ev_pkt.type) {
 			case EVENT_TYPE_MOTION:
 				send_event(device, EV_SYN, SYN_REPORT, 1);
+				if (touch == 0 && ev_pkt.ptr == 2){
+					touch = 1;
+					send_event(device, EV_KEY, BTN_TOUCH, 1);
+					}
+				else if (ev_pkt.ptr < 2){
+					touch = 0;
+					send_event(device, EV_KEY, BTN_TOUCH, 0);
+					}
 				break;
 			case EVENT_TYPE_BUTTON:
-				if (ev_pkt.button == 0)
-					send_event(device, EV_KEY, BTN_TOUCH, ev_pkt.down);
 				send_event(device, EV_SYN, SYN_REPORT, 1);
 				break;
 

@@ -71,9 +71,9 @@ public class CanvasView extends View implements SharedPreferences.OnSharedPrefer
 
     // drawing
 
-    @Override
+	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        Log.i(TAG, "Canvas size changed: " + w + "x" + h + " (before: " + oldw + "x" + oldh + ")");
+		Log.i(TAG, "Canvas size changed: " + w + "x" + h + " (before: " + oldw + "x" + oldh + ")");
 		maxX = w;
 		maxY = h;
 	}
@@ -81,14 +81,16 @@ public class CanvasView extends View implements SharedPreferences.OnSharedPrefer
 	@Override
 	public boolean onGenericMotionEvent(MotionEvent event) {
 		if (isEnabled()) {
-			for (int ptr = 0; ptr < event.getPointerCount(); ptr++)
-				if (!acceptStylusOnly || (event.getToolType(ptr) == MotionEvent.TOOL_TYPE_STYLUS)) {
-					Log.v(TAG, String.format("Generic motion event logged: %f|%f, pressure %f", event.getX(ptr), event.getY(ptr), event.getPressure(ptr)));
+			int ptr = event.getPointerCount();
+
+			if (ptr != 0){
+					Log.v(TAG, String.format("Generic motion event logged: %f|%f, pressure: %f, ptr: %d", event.getX(0), event.getY(0), event.getPressure(0), ptr));
 					if (event.getActionMasked() == MotionEvent.ACTION_HOVER_MOVE)
 						netClient.getQueue().add(new NetEvent(Type.TYPE_MOTION,
-							normalizeX(event.getX(ptr)),
-							normalizeY(event.getY(ptr)),
-							normalizePressure(event.getPressure(ptr))
+							normalizeX(event.getX(0)),
+							normalizeY(event.getY(0)),
+							normalizePressure(event.getPressure(0)),
+							ptr
 						));
 				}
 			return true;
@@ -99,25 +101,25 @@ public class CanvasView extends View implements SharedPreferences.OnSharedPrefer
 	@Override
 	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		if (isEnabled()) {
-			for (int ptr = 0; ptr < event.getPointerCount(); ptr++)
-				if (!acceptStylusOnly || (event.getToolType(ptr) == MotionEvent.TOOL_TYPE_STYLUS)) {
-					short nx = normalizeX(event.getX(ptr)),
-						  ny = normalizeY(event.getY(ptr)),
-						  npressure = normalizePressure(event.getPressure(ptr));
-					Log.v(TAG, String.format("Touch event logged: action %d @ %f|%f (pressure %f)", event.getActionMasked(), event.getX(ptr), event.getY(ptr), event.getPressure(ptr)));
-					switch (event.getActionMasked()) {
+			int ptr = event.getPointerCount();
+
+			if (ptr != 0) {
+				short nx = normalizeX(event.getX(0)),
+					  ny = normalizeY(event.getY(0)),
+					  npressure = normalizePressure(event.getPressure(0));
+				Log.v(TAG, String.format("Touch event logged: action %d @ %f|%f (pressure: %f, ptr: %d)", event.getActionMasked(), event.getX(0), event.getY(0), event.getPressure(0), ptr));
+				switch (event.getActionMasked()) {
 					case MotionEvent.ACTION_MOVE:
-						netClient.getQueue().add(new NetEvent(Type.TYPE_MOTION, nx, ny, npressure));
+						netClient.getQueue().add(new NetEvent(Type.TYPE_MOTION, nx, ny, npressure, ptr));
 						break;
 					case MotionEvent.ACTION_DOWN:
-						netClient.getQueue().add(new NetEvent(Type.TYPE_BUTTON, nx, ny, npressure, 0, true));
+						netClient.getQueue().add(new NetEvent(Type.TYPE_BUTTON, nx, ny, npressure, ptr, ptr, true));
 						break;
 					case MotionEvent.ACTION_UP:
 					case MotionEvent.ACTION_CANCEL:
-						netClient.getQueue().add(new NetEvent(Type.TYPE_BUTTON, nx, ny, npressure, 0, false));
+						netClient.getQueue().add(new NetEvent(Type.TYPE_BUTTON, nx, ny, npressure, ptr, ptr, false));
 						break;
 					}
-						
 				}
 			return true;
 		}

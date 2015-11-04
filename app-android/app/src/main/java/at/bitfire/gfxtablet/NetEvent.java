@@ -19,6 +19,7 @@ public class NetEvent {
 	
 	final Type type;
 	short x, y, pressure;
+	int ptr;
 	byte button, button_down;
 
 	
@@ -26,15 +27,16 @@ public class NetEvent {
 		this.type = type;
 	}
 
-	public NetEvent(Type type, short x, short y, short pressure) {
+	public NetEvent(Type type, short x, short y, short pressure, int ptr) {
 		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.pressure = pressure;
+		this.ptr = ptr;
 	}
 	
-	public NetEvent(Type type, short x, short y, short pressure, int button, boolean button_down) {
-		this(type, x, y, pressure);
+	public NetEvent(Type type, short x, short y, short pressure, int ptr, int button, boolean button_down) {
+		this(type, x, y, pressure, ptr);
 		this.button = (byte)button;
 		this.button_down = (byte)(button_down ? 1 : 0);
 	}
@@ -63,13 +65,14 @@ public class NetEvent {
 			dos.writeShort(x);
 			dos.writeShort(y);
 			dos.writeShort(pressure);
+			dos.writeShort(ptr);
 			
 			if (type == Type.TYPE_BUTTON) {
 				dos.writeByte(button);
 				dos.writeByte(button_down);
 			}
 		} catch(IOException e) {
-            Log.wtf(signature, "Couldn't generate network packet");
+			Log.wtf(signature, "Couldn't generate network packet");
 		}
 		
 		return baos.toByteArray();

@@ -18,6 +18,7 @@ struct event_packet
 	struct {	/* required */
 		short x, y;
 		short pressure;
+		int ptr;
 	};
 
 	struct {	/* only required for EVENT_TYPE_BUTTON */

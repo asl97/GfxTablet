@@ -1,3 +1,12 @@
+# THIS IS A FORK
+
+a terrible fork, DO NOT USE UNLESS YOU KNOW WHAT YOU ARE DOING!
+
+first touch == hover
+
+second touch == click
+
+____
 
 To be informed about updates:
 
