@@ -105,7 +105,7 @@ int main(void)
 	struct event_packet ev_pkt;
 
 	if ((device = open("/dev/uinput", O_WRONLY | O_NONBLOCK)) < 0)
-		die("error: open");
+		die("error: opening /dev/uinput");
 
 	init_device(device);
 	udp_socket = prepare_socket();
@@ -145,7 +145,6 @@ int main(void)
 				send_event(device, EV_SYN, SYN_REPORT, 1);
 				break;
 			case EVENT_TYPE_BUTTON:
-				send_event(device, EV_SYN, SYN_REPORT, 1);
 				if (touch == 0 && ev_pkt.ptr == 2){
 					touch = 1;
 					send_event(device, EV_KEY, BTN_TOUCH, 1);
@@ -154,6 +153,7 @@ int main(void)
 					touch = 0;
 					send_event(device, EV_KEY, BTN_TOUCH, 0);
 					}
+				send_event(device, EV_SYN, SYN_REPORT, 1);
 				break;
 
 		}

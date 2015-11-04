@@ -31,7 +31,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnSystemUi
     NetworkClient netClient;
 
     SharedPreferences preferences;
-    boolean fullScreen = false;
+    boolean fullScreen = true;
 
 
     @Override
@@ -51,11 +51,18 @@ public class CanvasActivity extends AppCompatActivity implements View.OnSystemUi
         // notify CanvasView of the network client
         CanvasView canvas = (CanvasView)findViewById(R.id.canvas);
         canvas.setNetworkClient(netClient);
+
+        CanvasActivity.this.getSupportActionBar().hide();
+        View rootView = getWindow().getDecorView();
+        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        View rootView = getWindow().getDecorView();
+        rootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         if (preferences.getBoolean(SettingsActivity.KEY_KEEP_DISPLAY_ACTIVE, true))
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -132,7 +139,7 @@ public class CanvasActivity extends AppCompatActivity implements View.OnSystemUi
     public void onSystemUiVisibilityChange(int visibility) {
         Log.i("GfxTablet", "System UI changed " + visibility);
 
-        fullScreen = (visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0;
+        fullScreen = !(visibility == 0 || visibility == 2);
 
         // show/hide action bar according to full-screen mode
         if (fullScreen) {
