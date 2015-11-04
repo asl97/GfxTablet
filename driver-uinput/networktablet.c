@@ -143,17 +143,17 @@ int main(void)
 		switch (ev_pkt.type) {
 			case EVENT_TYPE_MOTION:
 				send_event(device, EV_SYN, SYN_REPORT, 1);
+				break;
+			case EVENT_TYPE_BUTTON:
+				send_event(device, EV_SYN, SYN_REPORT, 1);
 				if (touch == 0 && ev_pkt.ptr == 2){
 					touch = 1;
 					send_event(device, EV_KEY, BTN_TOUCH, 1);
 					}
-				else if (ev_pkt.ptr < 2){
+				else if (touch == 1 && ev_pkt.ptr < 2){
 					touch = 0;
 					send_event(device, EV_KEY, BTN_TOUCH, 0);
 					}
-				break;
-			case EVENT_TYPE_BUTTON:
-				send_event(device, EV_SYN, SYN_REPORT, 1);
 				break;
 
 		}
